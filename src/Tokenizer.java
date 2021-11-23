@@ -24,58 +24,63 @@ public class Tokenizer {
 		}
     }
 
+  
+
     public List<String> getTokens(String text) {
-        //convert to lower case
-        text = text.toLowerCase();
+      //convert to lower case
+      text = text.toLowerCase();
+      //remove url
+      //text = text.replaceAll("http.*?\\s", "");
+      //replace hyphen by space
+      text = text.replaceAll("-", " ");
+      //replace punctuation
+      text = text.replaceAll("\\p{P}", "");
+      //replace multiple space by single splace
+      text = text.trim().replaceAll(" +", " ");
 
+      List<String> ret = new ArrayList<>();
+      StringTokenizer tk = new StringTokenizer(text);
+      while (tk.hasMoreTokens()) {
+          //get next token from iterator
+          String nextTk = tk.nextToken();
 
-        List<String> ret = new ArrayList<>();
-        StringTokenizer tk = new StringTokenizer(text);
-        while (tk.hasMoreTokens()) {
-            //get next token from iterator
-            String nextTk = tk.nextToken();
+          //remove stop words, urls, mentions, punctuations.
+          if (stopWords.contains(nextTk) || 
+               nextTk.contains("http") || nextTk.contains("www")) {
+               continue;
+         }
+
+          //replace all hyphen with spaces increases performance
+          nextTk = nextTk.replaceAll("-", " ");
+          //replace all hyphen with spaces increases performance
+          nextTk = nextTk.replaceAll("\\p{P}", " ");
+
+          //remove punctuations, digits, non-english languages
+          //nextTk = nextTk.replaceAll("[^a-zA-Z ]", " ");
+          //replace multiple space with one
+          nextTk = nextTk.trim().replaceAll(" +", " ");
+
+          //proceed word stemming with porter stemmer
+          for (int i = 0; i < nextTk.length(); i++){
+             char c = nextTk.charAt(i);        
+             stemmer.add(c);
+          }
+          stemmer.stem();
+          //System.out.println(stemmer.toString());
+          if (stemmer.toString().length() > 1) {
+             ret.add(stemmer.toString()); 
+          }
             
+      }
 
-            //remove stop words, urls, mentions, punctuations.
-            if (stopWords.contains(nextTk) || 
-                nextTk.contains("http") || 
-                nextTk.contains("www") || 
-                nextTk.contains("@") || 
-                nextTk.matches("\\p{P}")) {
-                continue;
-            }
-
-            //replace all hyphen with spaces increases performance
-            nextTk = nextTk.replaceAll("-", " ");
-            //replace all hyphen with spaces increases performance
-            nextTk = nextTk.replaceAll("\\p{P}", " ");
-
-            //remove punctuations, digits, non-english languages
-            nextTk = nextTk.replaceAll("[^a-zA-Z ]", " ");
-            //replace multiple space with one
-            nextTk = nextTk.trim().replaceAll(" +", " ");
-
-            //proceed word stemming with porter stemmer
-            for (int i = 0; i < nextTk.length(); i++){
-               char c = nextTk.charAt(i);        
-               stemmer.add(c);
-            }
-            stemmer.stem();
-            //System.out.println(stemmer.toString());
-            if (stemmer.toString().length() > 1) {
-               ret.add(stemmer.toString()); 
-            }
-              
-        }
-
-        return ret;
-    }
+      return ret;
+  }
 
 
     public static void main(String[] args)
     {
-       Tokenizer t = new Tokenizer("StopWords.txt");
-       String test = "is killing time on FIFA Soccer 11. http://raptr.com/uexpectme2talk";
+       Tokenizer t = new Tokenizer("files/StopWords.txt");
+       String test = "eclipsed";
        List<String> res = t.getTokens(test);
        for (String s : res) {
           System.out.println(s);

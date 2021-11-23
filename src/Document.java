@@ -50,6 +50,7 @@ public class Document {
     }
 
 
+    //calcuate the norm of a vertorized document
     public void calcNorme(Map<String, Integer> documentFrequency, int N) {
         for (String token : tokenList) {
             tf_idf.add((1 + Math.log10(0.0 + freqMap.get(token))) * Math.log10((0.0 + N) / (0.0 + documentFrequency.get(token))));
